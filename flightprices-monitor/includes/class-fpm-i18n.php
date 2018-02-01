@@ -6,11 +6,11 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       http://example.com
- * @since      1.0.0
+ * @link       http://escapefromberl.in
+ * @since      0.1
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    Flight_Prices_Monitor
+ * @subpackage Flight_Prices_Monitor/includes
  */
 
 /**
@@ -19,23 +19,23 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @since      1.0.0
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
- * @author     Your Name <email@example.com>
+ * @since      0.1
+ * @package    Flight_Prices_Monitor
+ * @subpackage Flight_Prices_Monitor/includes
+ * @author     wetterkrank <wetterkrank@gmail.com>
  */
-class Plugin_Name_i18n {
+class Flight_Prices_Monitor_i18n {
 
 
 	/**
 	 * Load the plugin text domain for translation.
 	 *
-	 * @since    1.0.0
+	 * @since    0.1
 	 */
 	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'plugin-name',
+			'flight-prices-monitor',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
