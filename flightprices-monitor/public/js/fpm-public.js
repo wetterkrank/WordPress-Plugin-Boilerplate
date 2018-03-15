@@ -46,7 +46,7 @@
             };
 
             $.ajax({
-              url: 'http://escapefromberl.in:8080/prices', // todo: endpoint in config; authorization
+              url: 'https://escapefromberl.in:8080/prices', // todo: endpoint in config; authorization
               type: "POST",
               data: JSON.stringify(query),
               contentType: "application/json; charset=utf-8",
