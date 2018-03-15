@@ -1,4 +1,4 @@
- # Flightprices Monitor
+ # Flymon
 
 A WordPress plugin to display the lowest flight price for a given route/dates in your blog.
 
