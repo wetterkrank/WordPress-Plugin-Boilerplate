@@ -39,22 +39,24 @@
               "destination": element.getAttribute("data-to"),
               "latest": element.getAttribute("data-latest"),
               "earliest": element.getAttribute("data-earliest"),
-              "min_days": element.getAttribute("data-min-days"),
-              "max_days": element.getAttribute("data-max-days"),
+              "minDays": element.getAttribute("data-min_days"),
+              "maxDays": element.getAttribute("data-max_days"),
               "currency": element.getAttribute("data-currency"),
-              "locale": element.getAttribute("data-locale")
+              "locale": element.getAttribute("data-locale"),
+              "deeplink": "search"
             };
 
+            // todo: different widget types
             $.ajax({
               url: 'https://escapefromberl.in:8080/prices', // todo: endpoint in config; authorization
               type: "POST",
               data: JSON.stringify(query),
               contentType: "application/json; charset=utf-8",
               success: function(data) {
-                $(element).html(data.currency + " " + data.price); // todo: micro/mini/full output, localization; error handling
+                $(element).html("<a href=\"" + data.deeplink + "\"" + " target=\"_blank\" rel=\"nofollow\">" + data.currency + " " + data.price + "</a>"); // todo: micro/mini/full output, localization; error handling
               },
               error: function(xhr) {
-                // do nothing or $(element).html("n/a");
+                // do nothing or $(element).html("click to check");
               }
             });
 
