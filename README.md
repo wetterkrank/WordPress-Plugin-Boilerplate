@@ -9,6 +9,18 @@ Copy the plugin into the plugins directory; activate.
 ## Usage
 
 To display the price in your post or page, insert the shortcode fpm_price in the text.
+Shortcode parameters:
+
+type (micro, mini, full)
+from (BER)
+to (MUC)
+earliest (2018-01-30, tomorrow)
+latest (2018-12-31, +3 months)
+min_days (2)
+max_days (4)
+direct_only (true, false)
+currency (EUR)
+locale (en)
 
 Examples:
 [fpm_price from="BER" to="MUC" earliest="tomorrow" latest="+3 months" currency="EUR"]
