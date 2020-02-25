@@ -1,7 +1,6 @@
  # Flymon
 
 A WordPress plugin to display the lowest flight price for a given route/dates in your blog.
-
 Uses the backend https://github.com/wetterkrank/travelcheck (a Python + Mongo caching layer over the supplier's API).
 
 ## Installation
