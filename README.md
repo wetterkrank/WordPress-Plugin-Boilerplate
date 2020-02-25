@@ -1,6 +1,7 @@
  # Flymon
 
 A WordPress plugin to display the lowest flight price for a given route/dates in your blog.
+Uses the backend https://github.com/wetterkrank/travelcheck (a Python + Mongo caching layer over the supplier's API).
 
 ## Installation
 
@@ -9,11 +10,11 @@ Copy the plugin into the plugins directory; activate.
 ## Usage
 
 To display the price in your post or page, insert the shortcode fpm_price in the text.
-Shortcode parameters:
+Shortcode parameters and examples:
 
 - type (micro, mini, full)
-- from (BER)
-- to (MUC)
+- from (BER, berlin_de)
+- to (MUC, innsbruck_at)
 - earliest (2018-01-30, tomorrow)
 - latest (2018-12-31, +3 months)
 - min_days (2)
