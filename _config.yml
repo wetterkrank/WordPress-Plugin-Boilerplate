@@ -1,0 +1,8 @@
+title: WordPress Plugin Boilerplate
+description: A foundation for WordPress Plugin Development that aims to provide a clear and consistent guide for building your plugins.
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
