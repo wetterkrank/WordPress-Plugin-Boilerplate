@@ -1,7 +1,7 @@
-title: WordPress Plugin Boilerplate
-description: A foundation for WordPress Plugin Development that aims to provide a clear and consistent guide for building your plugins.
+title: Flymon plugin for Wodpress
+description: A WordPress plugin to display the lowest flight price for a given route/dates in your blog.
 google_analytics: 
-show_downloads: true
+show_downloads: false
 theme: jekyll-theme-slate
 
 gems:
