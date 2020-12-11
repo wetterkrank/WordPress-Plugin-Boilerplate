@@ -1,7 +1,8 @@
  # Flymon
 
 A WordPress plugin to display the lowest flight price for a given route/dates in your blog.
-Powers the cheapest flight monitor here: https://escapefromberl.in
+
+Powers the cheapest flights monitor here: https://escapefromberl.in
 
 Requires this backend app for caching/proxying: https://github.com/wetterkrank/travelcheck (a Python + Mongo caching layer over the supplier's API).
 
