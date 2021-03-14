@@ -37,14 +37,14 @@
 		}
 		$this->name = 'flight-prices-monitor';
 
+		$this->load_config();
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-		$this->load_config();
 	}
 
-	// Loads the minimal required configuration
+	// Loads the minimal configuration; the rest is loaded by class constructors when needed
 	private function load_config() {
 		$this->config = [];
 	}
@@ -79,7 +79,7 @@
 
 		$plugin_admin = new Flight_Prices_Monitor_Admin( 
 			$this->get_name(), 
-			$this->get_version(),
+			$this->get_version()
 		);
 
 		// JS and CSS
@@ -98,7 +98,7 @@
 		$plugin_public = new Flight_Prices_Monitor_Public( 
 			$this->get_name(), 
 			$this->get_version(), 
-			$this->get_config(),
+			$this->get_config()
 		);
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );

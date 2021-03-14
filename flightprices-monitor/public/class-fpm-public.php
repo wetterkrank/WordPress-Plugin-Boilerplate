@@ -12,7 +12,9 @@ class Flight_Prices_Monitor_Public {
 	public function __construct( $name, $version, $config ) {
 		$this->name = $name;
 		$this->version = $version;
+
 		$this->config = $config;
+		$this->config['affilid'] = get_option('flymon_kiwi_affil_id', '');
 	}
 
 	// Registers the stylesheets for the public-facing side of the site
@@ -40,7 +42,7 @@ class Flight_Prices_Monitor_Public {
         
 	// Registers shortcodes for the public-facing side of the site
 	public function register_shortcodes() {
-		add_shortcode('fpm_price', array ($this, 'add_price_widget'));
+		add_shortcode('trip_price', array ($this, 'add_price_widget'));
 	}
 
 	// Constructor for fpm_price shortcode; returns HTML string
@@ -50,14 +52,14 @@ class Flight_Prices_Monitor_Public {
 		$a = shortcode_atts(array(
 			'from' => '',
 			'to' => '',
-			'earliest' => '',
-			'latest' => '',
-			'min_days' => '2',
-			'max_days' => '3',
+			'earliest' => 'today',
+			'latest' => '+3 months',
+			'min_days' => '7',
+			'max_days' => '14',
 			'max_stops' => '0',
+			'transport' => 'aircraft',
 			'currency' => 'EUR',
 			'locale' => 'en',
-			'vehicle' => 'aircraft'
 		), $atts);
 
 		// Validate the input and set the rest of the defaults
@@ -71,7 +73,7 @@ class Flight_Prices_Monitor_Public {
 		}
 
 		if ( ($latest = strtotime($a['latest'])) === false ) {
-			$a['latest'] = date('d/m/Y');
+			$a['latest'] = date('d/m/Y', strtotime("+3 months"));
 		} else {
 			$a['latest'] = date('d/m/Y', $latest);
 		}
@@ -87,11 +89,11 @@ class Flight_Prices_Monitor_Public {
 			$a['locale'] = 'en';
 		}
 
-		$a['vehicle'] = str_replace(' ', '', $a['vehicle']);
-		$vehicles = explode(',', $a['vehicle']);
+		$a['transport'] = str_replace(' ', '', $a['transport']);
+		$vehicles = explode(',', $a['transport']);
 		$unlisted = array_diff($vehicles, ['aircraft', 'bus', 'train']);
 		if (count($unlisted) !== 0)
-			$a['vehicle'] = 'aircraft';
+			$a['transport'] = 'aircraft';
 
 		// Return HTML widget replacing the fpm_price shortcode
 		$data = 'data-fly_from="' . $a['from']
@@ -103,9 +105,13 @@ class Flight_Prices_Monitor_Public {
 				. '" data-max_stopovers="' . $a['max_stops']
 				. '" data-curr="' . $a['currency']
 				. '" data-locale="' . $a['locale']
-				. '" data-vehicle_type="' . $a['vehicle']
+				. '" data-vehicle_type="' . $a['transport']
+				. '" data-affilid="' . $this->config['affilid']
 				. '"';
-		return '<span class="flymon-tag" ' . $data . ' style="display: inline;">...</span>';
+		// Mind the ellipsis dots in one line
+		return '<span class="flymon-tag" ' . $data . '>
+			<span class="flymon-tag__dot1">.</span><span class="flymon-tag__dot2">.</span><span class="flymon-tag__dot3">.</span>
+		</span>';
 	}
 
 	// Adds AJAX handlers for the public-facing side of the site.
@@ -129,11 +135,11 @@ class Flight_Prices_Monitor_Public {
 
 		$search_string = implode('|', $query);
 		$search_id = wp_hash($search_string);
-		// delete_transient($search_id); // for testing
+		delete_transient($search_id); // for testing
 		$price = json_decode(get_transient($search_id));
 
 		if ( !$price ) {
-			// unset($query); // for testing
+			// unset($query); // to send an incorrect query to Kiwi.com for testing
 			$config = $this->load_api_config($this->config);
 			$price = $this->request_from_kiwi($query, $config);
 			if ( !$price ) $this->throw_error(500, 'Could not retrieve the price from Kiwi, unknown error');
@@ -154,8 +160,7 @@ class Flight_Prices_Monitor_Public {
 		$config['apikey'] = get_option('flymon_kiwi_apikey');
 		if ( ! $config['apikey'] ) $this->throw_error(500, 'Kiwi API key is not set');
 	
-		$config['affilid'] = get_option('flymon_kiwi_affil_id');
-		$config['partner_market'] = get_option('flymon_kiwi_market', 'us');
+		$config['partner_market'] = get_option('flymon_kiwi_market', '');
 		$config['cache_hours'] = intval(get_option('flymon_cache_hours', 24));
 		return $config;
 	}
@@ -170,7 +175,7 @@ class Flight_Prices_Monitor_Public {
 	function request_from_kiwi($params, $config) {
 		$url_base = 'https://tequila-api.kiwi.com/v2/search';
 		$extras = [
-			'partner_market' => 'de', // TODO: config
+			'partner_market' => $config['partner_market'], // NOTE: move to shortcode?
 			'sort' => 'price',
 			'asc' => 1,
 			'limit' => 1
@@ -188,6 +193,7 @@ class Flight_Prices_Monitor_Public {
 			&& wp_remote_retrieve_response_code($response) === 200 ) 
 		{
 			$output = $this->package_output($response);
+			if ( ! $output ) return false;
 			$output['deeplink'] = $this->make_search_deeplink($params, $config);
 			return $output;
 		} else {
@@ -200,16 +206,18 @@ class Flight_Prices_Monitor_Public {
 	function package_output(array $api_response) {
 		$output = [];
 		$body = json_decode( $api_response['body'], true ); // 'true' to return an array
-		$first_result = $body['data'][0];
-		$output['price'] = $first_result['price'];
-		$output['currency'] = $body['currency'];
-		$output['from'] = $first_result['flyFrom'];
-		$output['to'] = $first_result['flyTo'];
-		$output['outboundDate'] = date("d-m-Y", strtotime($first_result['utc_departure']));
-		$returnLeg = $this->array_where( $first_result['route'], fn($leg) => $leg['return'] === 1 );
-		$output['inboundDate'] = date("d-m-Y", strtotime($returnLeg['utc_departure']));
-		$output['booking_deeplink'] = $first_result['deep_link'];
-		$output['lastChecked'] = time(); // Unix timestamp
+		if ($body['data']) { // no data when nothing found
+			$first_result = $body['data'][0];
+			$output['price'] = $first_result['price'];
+			$output['currency'] = $body['currency'];
+			$output['from'] = $first_result['flyFrom'];
+			$output['to'] = $first_result['flyTo'];
+			$output['outboundDate'] = date("d-m-Y", strtotime($first_result['utc_departure']));
+			$returnLeg = $this->array_where( $first_result['route'], fn($leg) => $leg['return'] === 1 );
+			$output['inboundDate'] = date("d-m-Y", strtotime($returnLeg['utc_departure']));
+			$output['booking_deeplink'] = $first_result['deep_link'];
+			$output['lastChecked'] = time(); // Unix timestamp
+		}
 		return $output;
 	}
 
