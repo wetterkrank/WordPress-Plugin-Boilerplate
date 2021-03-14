@@ -19,10 +19,6 @@
  * For more information, see the following discussion:
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
- * @link       http://escapefromberl.in
- * @since      0.1
- *
- * @package    Flight_Prices_Monitor
  */
 
 // If uninstall not called from WordPress, then exit.

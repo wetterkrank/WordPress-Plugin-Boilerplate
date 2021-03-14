@@ -135,7 +135,7 @@ class Flight_Prices_Monitor_Public {
 
 		$search_string = implode('|', $query);
 		$search_id = wp_hash($search_string);
-		delete_transient($search_id); // for testing
+		// delete_transient($search_id); // for testing
 		$price = json_decode(get_transient($search_id));
 
 		if ( !$price ) {
